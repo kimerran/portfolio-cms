@@ -36,7 +36,7 @@ export async function GET(
     if (!bytes) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
-    return new NextResponse(bytes, {
+    return new NextResponse(Buffer.from(bytes), {
       headers: {
         'Content-Type': response.ContentType ?? 'application/octet-stream',
         'Cache-Control': 'public, max-age=31536000, immutable',
