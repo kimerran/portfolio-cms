@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.yarn/install-state.gz
+
+# Next.js
+.next/
+out/
+
+# Production build
+build/
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env*.local
+
+# Package manager lock files from other managers
+package-lock.json
+pnpm-lock.yaml
+
+# TypeScript build cache
+*.tsbuildinfo
+next-env.d.ts
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vercel
+.vercel
+
+# Pulumi state
+infra/.pulumi/
+
+# Editor / IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project docs (not for version control)
+AGENT.md
+SPEC.md
+DEV_CONFIG.md
+
+scratch/

@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // url       = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Project {
+  id            String       @id @default(cuid())
+  slug          String       @unique
+  title         String
+  summary       String       @db.VarChar(300)
+  description   String       @db.Text
+  coverImageUrl String?
+  liveDemoUrl   String?
+  youtubeUrl    String?
+  published     Boolean      @default(false)
+  sortOrder     Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  screenshots Screenshot[]
+  techStack   TechTag[]
+
+  @@index([published, sortOrder])
+}
+
+model Screenshot {
+  id        String   @id @default(cuid())
+  projectId String
+  url       String
+  altText   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model TechTag {
+  id        String  @id @default(cuid())
+  projectId String
+  name      String
+  category  String? // "Frontend" | "Backend" | "DevOps" | "Database" | "Other"
+  color     String? // hex color, e.g. "#61DAFB"
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, name])
+}
+
+model ContactSubmission {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  status    String   @default("new") // "new" | "read"
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([status])
+}

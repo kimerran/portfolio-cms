@@ -1,0 +1,51 @@
+{
+  "name": "portfolio-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "reset-password": "tsx scripts/reset-password.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.997.0",
+    "@hello-pangea/dnd": "^16.6.0",
+    "@prisma/adapter-pg": "^7.4.1",
+    "@prisma/client": "^7.4.1",
+    "@tiptap/extension-image": "^2.10.0",
+    "@tiptap/extension-link": "^2.10.0",
+    "@tiptap/extension-placeholder": "^2.10.0",
+    "@tiptap/pm": "^2.10.0",
+    "@tiptap/react": "^2.10.0",
+    "@tiptap/starter-kit": "^2.10.0",
+    "bcryptjs": "^2.4.3",
+    "clsx": "^2.1.1",
+    "dompurify": "^3.2.3",
+    "iron-session": "^8.0.3",
+    "lucide-react": "^0.462.0",
+    "next": "^14.2.21",
+    "pg": "^8.13.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "resend": "^4.0.0",
+    "tailwind-merge": "^2.5.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/dompurify": "^3.0.5",
+    "@types/node": "^20.17.0",
+    "@types/pg": "^8.11.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.21",
+    "postcss": "^8.4.47",
+    "prisma": "^7.4.1",
+    "tailwindcss": "^3.4.15",
+    "tsx": "^4.19.1",
+    "typescript": "^5.7.2"
+  }
+}
