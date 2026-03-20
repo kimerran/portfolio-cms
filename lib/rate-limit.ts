@@ -4,6 +4,7 @@ interface RateLimitEntry {
 }
 
 const store = new Map<string, RateLimitEntry>()
+const MAX_STORE_SIZE = 10_000
 
 export interface RateLimitOptions {
   maxRequests: number
@@ -21,6 +22,9 @@ export function checkRateLimit(key: string, options: RateLimitOptions): RateLimi
   const entry = store.get(key)
 
   if (!entry || now > entry.resetTime) {
+    if (!entry && store.size >= MAX_STORE_SIZE) {
+      return { allowed: false, remaining: 0, resetTime: now + options.windowMs }
+    }
     const resetTime = now + options.windowMs
     store.set(key, { count: 1, resetTime })
     return { allowed: true, remaining: options.maxRequests - 1, resetTime }
@@ -40,7 +44,7 @@ export function checkRateLimit(key: string, options: RateLimitOptions): RateLimi
 
 // Clean up expired entries every 5 minutes
 if (typeof setInterval !== 'undefined') {
-  setInterval(
+  const timer = setInterval(
     () => {
       const now = Date.now()
       for (const [key, entry] of store.entries()) {
@@ -51,4 +55,5 @@ if (typeof setInterval !== 'undefined') {
     },
     5 * 60 * 1000,
   )
+  timer.unref()
 }

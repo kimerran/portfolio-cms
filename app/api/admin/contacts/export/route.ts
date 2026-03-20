@@ -11,31 +11,53 @@ function escapeCsv(value: string | null | undefined): string {
   return str
 }
 
+const BATCH_SIZE = 500
+
 export async function GET() {
   const session = await getSession()
   if (!session.userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const submissions = await prisma.contactSubmission.findMany({
-    orderBy: { createdAt: 'desc' },
+  const header = ['ID', 'Name', 'Email', 'Subject', 'Message', 'Status', 'IP Address', 'Received At']
+  const encoder = new TextEncoder()
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      controller.enqueue(encoder.encode(header.join(',') + '\n'))
+
+      let skip = 0
+      while (true) {
+        const batch = await prisma.contactSubmission.findMany({
+          orderBy: { createdAt: 'desc' },
+          take: BATCH_SIZE,
+          skip,
+        })
+        if (batch.length === 0) break
+
+        const rows = batch.map((s) =>
+          [
+            escapeCsv(s.id),
+            escapeCsv(s.name),
+            escapeCsv(s.email),
+            escapeCsv(s.subject),
+            escapeCsv(s.message),
+            escapeCsv(s.status),
+            escapeCsv(s.ipAddress),
+            escapeCsv(s.createdAt.toISOString()),
+          ].join(','),
+        )
+        controller.enqueue(encoder.encode(rows.join('\n') + '\n'))
+
+        skip += batch.length
+        if (batch.length < BATCH_SIZE) break
+      }
+
+      controller.close()
+    },
   })
 
-  const header = ['ID', 'Name', 'Email', 'Subject', 'Message', 'Status', 'IP Address', 'Received At']
-  const rows = submissions.map((s) => [
-    escapeCsv(s.id),
-    escapeCsv(s.name),
-    escapeCsv(s.email),
-    escapeCsv(s.subject),
-    escapeCsv(s.message),
-    escapeCsv(s.status),
-    escapeCsv(s.ipAddress),
-    escapeCsv(s.createdAt.toISOString()),
-  ])
-
-  const csv = [header.join(','), ...rows.map((row) => row.join(','))].join('\n')
-
-  return new NextResponse(csv, {
+  return new NextResponse(stream, {
     status: 200,
     headers: {
       'Content-Type': 'text/csv',

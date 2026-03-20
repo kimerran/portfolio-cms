@@ -13,7 +13,7 @@ function createS3Client(): S3Client {
 
 // Lazily initialised so missing env vars only throw at call-time, not at build-time.
 let _s3: S3Client | null = null
-function s3(): S3Client {
+export function s3(): S3Client {
   _s3 ??= createS3Client()
   return _s3
 }

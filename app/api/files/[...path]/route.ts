@@ -1,23 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
-
-function createS3Client(): S3Client {
-  return new S3Client({
-    region: process.env.REGION ?? 'auto',
-    endpoint: process.env.ENDPOINT ?? 'https://storage.railway.app',
-    credentials: {
-      accessKeyId: process.env.ACCESS_KEY_ID!,
-      secretAccessKey: process.env.SECRET_ACCESS_KEY!,
-    },
-  })
-}
-
-let _s3: S3Client | null = null
-function s3(): S3Client {
-  _s3 ??= createS3Client()
-  return _s3
-}
+import { GetObjectCommand } from '@aws-sdk/client-s3'
+import { s3 } from '@/lib/storage'
 
 export async function GET(
   _request: NextRequest,
@@ -32,14 +16,15 @@ export async function GET(
     const response = await s3().send(
       new GetObjectCommand({ Bucket: process.env.BUCKET!, Key: key }),
     )
-    const bytes = await response.Body?.transformToByteArray()
-    if (!bytes) {
+    const stream = response.Body?.transformToWebStream()
+    if (!stream) {
       return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
-    return new NextResponse(Buffer.from(bytes), {
+    return new NextResponse(stream, {
       headers: {
         'Content-Type': response.ContentType ?? 'application/octet-stream',
         'Cache-Control': 'public, max-age=31536000, immutable',
+        ...(response.ContentLength ? { 'Content-Length': String(response.ContentLength) } : {}),
       },
     })
   } catch {
